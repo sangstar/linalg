@@ -12,9 +12,9 @@ int main()
     auto a1 = std::vector<int>{1, 2, 3};
     auto a2 = std::vector<int>{4, 5, 6};
 
-    auto b1 = std::vector<int>{7, 8};
-    auto b2 = std::vector<int>{9, 10};
-    auto b3 = std::vector<int>{11, 12};
+    auto b1 = std::vector<int>{1, 2, 3};
+    auto b2 = std::vector<int>{4, 5, 6};
+    auto b3 = std::vector<int>{7, 8, 9};
 
     std::vector<std::vector<int>> a_vectors = {a1, a2};
     std::vector<std::vector<int>> b_vectors = {b1, b2, b3};
@@ -24,15 +24,7 @@ int main()
 
     Matrix<int> result = matmul(mat_a, mat_b);
 
-    std::cout << "Matrix multiplication result:" << std::endl;
-    for (const auto &row : result.data())
-    {
-        for (const auto &elem : row)
-        {
-            std::cout << elem << " ";
-        }
-        std::cout << std::endl;
-    }
+    result.to_string();
 
     return 0;
 }
