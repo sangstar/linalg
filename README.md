@@ -11,7 +11,7 @@ cmake -S . -B build
 cmake --build build
 ```
 
-The shared object file will be available in the root directory and be
+The shared object file will be available in the root directory and can be
 imported directly in to Python.
 
 ```python
