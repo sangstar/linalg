@@ -1,6 +1,6 @@
 # linalg
 
-Linear algebra implementations for Python written in C++. 
+A Python module implemented in C++ to perform linear algebra.
 
 ## Quickstart
 
