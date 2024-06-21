@@ -37,7 +37,7 @@ public:
         std::vector<T> col_vec;
         for (size_t i = 0; i < num_rows(); ++i)
         {
-            col_vec.push_back(data_[col_index][i]);
+            col_vec.push_back(data_[i][col_index]);
         }
         return col_vec;
     }
