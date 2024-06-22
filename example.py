@@ -7,6 +7,6 @@ c = linalg.matmul(a, b)
 
 print(c)
 
-c.echelon(take_lower = True, take_upper = False)
+c.echelon()
 
 print(c)

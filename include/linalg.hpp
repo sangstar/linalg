@@ -58,22 +58,40 @@ public:
             throw std::runtime_error("Cannot reduce a rectangular matrix");
         }
 
+        // This outer loop i runs through each pivot element
+        // on the diagonal of Matrix
         for (size_t i = 0; i < num_rows_; ++i){
 
-            // Calculate the upper triangular matrix U
             for (size_t k = i; k < num_rows_; ++k) {
                 T sum = 0;
+
+                // Since L stores the pivot factors for each
+                // row, it uses it to update the values in
+                // the pivot row. For instance, to find U[1][1],
+                // one needs to find the second diagonal element
+                // of Matrix, the second pivot. This requires
+                // modifying R1 by R1 = R1 - b*R0 where b zeros
+                // out the element one row under the pivot. The
+                // first L element of that row is that factor,
+                // represented by at(i,j) here.
                 for (size_t j = 0; j < i; ++j) {
                     sum += at(i, j) * at(j, k);
                 }
+
                 at(i, k) = at(i, k) - sum;
             }
             // Calculate the lower triangular matrix L
+            // This essentially attempts to find the pivot factor
+            // but instead of using it to zero out rows elements
+            // below the pivot, it stores the pivot factor where it
+            // would've zero'd
             for (size_t k = i + 1; k < num_rows_; ++k) {
                 T sum = 0;
+
                 for (size_t j = 0; j < i; ++j) {
                     sum += at(k, j) * at(j, i);
                 }
+
                 at(k, i) = (at(k, i) - sum) / at(i,i);
             }
         }
@@ -82,7 +100,7 @@ public:
         // triangular quadrants.
 
         // Zero out the elements below the diagonal to retrieve U, which is the original
-        // matrix in echelon form
+        // Matrix in echelon form
         if (take_upper) {
             for (size_t i = 0; i < num_rows_; ++i) {
                 for (size_t j = 0; j < num_rows_; ++j) {
