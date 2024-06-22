@@ -15,6 +15,9 @@ public:
 
     // Additionally add a constructor for a vector of vectors
     // (so that the Python lib can initialize with a list of lists)
+
+    // Matrices are stored as simply a std::vector<T> with
+    // indexing using `at` to keep elements C-contiguous
     explicit Matrix(std::vector<std::vector<T>> stacked_data)
     {
         num_rows_ = stacked_data.size();
