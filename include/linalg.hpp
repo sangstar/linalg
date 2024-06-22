@@ -37,11 +37,6 @@ public:
 
     T &at(size_t row, size_t col)
     {
-
-        // Need to subtract by 1 since this assumes
-        // indexing starts at 1, but std::vector indexing
-        // starts at 0
-
         return data_[row * num_cols_ + col];
     }
 
