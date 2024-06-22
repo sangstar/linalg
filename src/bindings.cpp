@@ -16,7 +16,7 @@ NB_MODULE(linalg, m)
         .def("num_cols", &Matrix<float>::num_cols)
         .def("data", &Matrix<float>::data)
         .def("__str__", &Matrix<float>::to_string)
-        .def("echelon", &Matrix<float>::echelon, "take_upper"_a = true, "take_lower"_a = false,
+        .def("echelon_form", &Matrix<float>::echelon_form, "take_upper"_a = true, "take_lower"_a = false,
              "Get the row-echelon form of Matrix using LU decomposition, performed in-place. "
              "`take_upper=True` returns the upper triangular matrix U, which is Matrix in row-echelon "
              "form, while `take_lower=True` returns the lower triangular matrix L. Note that this "

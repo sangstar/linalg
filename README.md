@@ -32,7 +32,7 @@ Matrix([
 ])
 '''
 
-c.echelon()
+c.echelon_form()
 
 print(c)
 
