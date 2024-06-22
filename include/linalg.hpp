@@ -52,7 +52,8 @@ public:
         return num_cols_;
     }
 
-    // Get row-echelon form using LU decomposition, performed in-place
+    // Get row-echelon form using LU decomposition, performed in-place.
+    // The resulting Matrix
     void echelon(bool take_upper, bool take_lower) {
         if (num_cols_ != num_rows_) {
             throw std::runtime_error("Cannot reduce a rectangular matrix");
