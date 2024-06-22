@@ -72,7 +72,7 @@ public:
                 // of Matrix, the second pivot. This requires
                 // modifying R1 by R1 = R1 - b*R0 where b zeros
                 // out the element one row under the pivot. The
-                // first L element of that row is that factor,
+                // first L element of that row is that factor b,
                 // represented by at(i,j) here.
                 for (size_t j = 0; j < i; ++j) {
                     sum += at(i, j) * at(j, k);
