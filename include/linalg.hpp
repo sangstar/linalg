@@ -23,9 +23,13 @@ public:
         num_rows_ = stacked_data.size();
         num_cols_ = stacked_data[0].size();
         data_.reserve(num_rows_ * num_cols_);
+        size_t len_integrity = stacked_data[0].size();
 
         for (size_t i = 0; i < num_rows_; ++i)
         {
+            if (len_integrity != stacked_data[i].size()) {
+                throw std::runtime_error("Non-uniform dimensions for matrix");
+            }
             for (size_t j = 0; j < num_cols_; ++j)
             {
                 data_.push_back(stacked_data[i][j]);
