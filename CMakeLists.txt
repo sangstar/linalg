@@ -25,5 +25,3 @@ include_directories("include")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 nanobind_add_module(linalg src/bindings.cpp)
-
-add_executable(example src/example.cpp)
