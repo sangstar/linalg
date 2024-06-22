@@ -38,10 +38,13 @@ public:
         return data_;
     }
 
-    // TODO: Add []operator
     T &at(size_t row, size_t col)
     {
         return data_[row * num_cols_ + col];
+    }
+
+    T operator[](std::tuple<size_t, size_t> idx) {
+        return at(std::get<0>(idx), std::get<1>(idx));
     }
 
     size_t
