@@ -6,6 +6,8 @@
 namespace nb = nanobind;
 using namespace nb::literals;
 
+
+// TODO: Add documentation for functions and methods
 NB_MODULE(linalg, m)
 {
     nb::class_<Matrix<float>>(m, "Matrix")
@@ -13,7 +15,9 @@ NB_MODULE(linalg, m)
         .def("num_rows", &Matrix<float>::num_rows)
         .def("num_cols", &Matrix<float>::num_cols)
         .def("data", &Matrix<float>::data)
-        .def("__str__", &Matrix<float>::to_string);
+        .def("__str__", &Matrix<float>::to_string)
+        .def("echelon", &Matrix<float>::echelon, "take_upper"_a = true, "take_lower"_a = false);
+
 
     m.def("matmul", &matmul<float>, "a"_a, "b"_a);
     m.def("dot_product", &dot_product<float>, "v"_a, "u"_a);

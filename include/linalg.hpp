@@ -35,6 +35,7 @@ public:
         return data_;
     }
 
+    // TODO: Add []operator
     T &at(size_t row, size_t col)
     {
         return data_[row * num_cols_ + col];
@@ -51,16 +52,73 @@ public:
         return num_cols_;
     }
 
+    // Get row-echelon form using LU decomposition, performed in-place
+    void echelon(bool take_upper, bool take_lower) {
+        if (num_cols_ != num_rows_) {
+            throw std::runtime_error("Cannot reduce a rectangular matrix");
+        }
+
+        for (size_t i = 0; i < num_rows_; ++i){
+
+            // Calculate the upper triangular matrix U
+            for (size_t k = i; k < num_rows_; ++k) {
+                T sum = 0;
+                for (size_t j = 0; j < i; ++j) {
+                    sum += at(i, j) * at(j, k);
+                }
+                at(i, k) = at(i, k) - sum;
+            }
+            // Calculate the lower triangular matrix L
+            for (size_t k = i + 1; k < num_rows_; ++k) {
+                T sum = 0;
+                for (size_t j = 0; j < i; ++j) {
+                    sum += at(k, j) * at(j, i);
+                }
+                at(k, i) = (at(k, i) - sum) / at(i,i);
+            }
+        }
+
+        // This result combines the L and U matrices respectively in their upper and lower
+        // triangular quadrants.
+
+        // Zero out the elements below the diagonal to retrieve U, which is the original
+        // matrix in echelon form
+        if (take_upper) {
+            for (size_t i = 0; i < num_rows_; ++i) {
+                for (size_t j = 0; j < num_rows_; ++j) {
+                    if (j < i) {
+                        at(i, j) = 0;
+                    }
+                }
+            }
+        }
+        if (take_lower) {
+            for (size_t i = 0; i < num_rows_; ++i) {
+                for (size_t j = 0; j < num_rows_; ++j) {
+                    if (i == j) {
+                        at(i,j) = 1;
+                    }
+                    if (j > i) {
+                        at(i, j) = 0;
+                    }
+                }
+            }
+        }
+
+    }
+
+    // TODO: Ensure whitespace length of all rows
+    //       is as long as the longest row
     std::string to_string()
     {
         std::stringstream ss;
 
         ss << "Matrix([" << std::endl;
-        for (size_t i = 0; i < num_rows(); ++i)
+        for (size_t i = 0; i < num_rows_; ++i)
         {
             ss << "    ";
             ss << "[";
-            for (size_t j = 0; j < num_cols(); ++j)
+            for (size_t j = 0; j < num_cols_; ++j)
             {
                 if (j == num_cols() - 1)
                 {
