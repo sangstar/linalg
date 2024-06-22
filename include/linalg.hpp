@@ -55,6 +55,47 @@ public:
         return num_cols_;
     }
 
+    Matrix<T> operator+(Matrix& other) {
+        std::vector<T> c_data;
+        if (num_cols_ != other.num_cols() || num_rows_ != other.num_rows()) {
+            throw std::runtime_error("Matrices must have same dimension");
+        }
+        for (size_t i = 0; i < num_rows_; ++i) {
+            for (size_t j = 0; j < num_cols_; ++j) {
+                c_data.push_back(at(i,j) + other.at(i,j));
+            }
+        }
+        return Matrix<T>(c_data, num_rows_, num_cols_);
+    }
+
+    Matrix<T> operator*(Matrix& other)
+    {
+        if (num_cols_ != other.num_rows())
+        {
+            throw std::runtime_error("Incompatible matrix dimensions");
+        }
+
+        std::vector<T> c_data;
+
+        // m indexes over the rows of a
+        for (size_t m = 0; m < num_rows_; ++m)
+        {
+            // p indexes over the cols of b
+            for (size_t p = 0; p < other.num_cols(); ++p)
+            {
+                // n indexes over the cols of a and the rows of b
+                T dot_product_result = 0;
+                for (size_t n = 0; n < other.num_rows(); ++n)
+                {
+                    dot_product_result += at(m, n) * other.at(n, p);
+                }
+                c_data.push_back(dot_product_result);
+            }
+        }
+
+        return Matrix<T>(c_data, num_rows_, other.num_cols());
+    }
+
     // Get row-echelon form using LU decomposition, performed in-place.
     void echelon_form(bool take_upper, bool take_lower) {
         if (num_cols_ != num_rows_) {
@@ -128,6 +169,23 @@ public:
 
     }
 
+    T det() {
+        T result = 1;
+
+        // Copy Matrix to avoid modifying it on call
+        // to its determinant
+        Matrix<T> mat = *this;
+
+        mat.echelon_form(true, false);
+
+        // Determinant of an upper triangular matrix
+        // is trivially the product of its diagonal entries
+        for (size_t i = 0; i < num_rows_; ++i){
+            result = result * mat.at(i,i);
+        }
+        return result;
+    }
+
     // TODO: Ensure whitespace length of all rows
     //       is as long as the longest row
     std::string to_string()
@@ -185,34 +243,4 @@ float dot_product(std::vector<T> &v, std::vector<T> &u)
     }
     return result;
 }
-
-template <typename T>
-Matrix<T> matmul(Matrix<T> &a, Matrix<T> &b)
-{
-    if (a.num_cols() != b.num_rows())
-    {
-        throw std::runtime_error("Incompatible matrix dimensions.");
-    }
-
-    std::vector<T> c_data;
-
-    // m indexes over the rows of a
-    for (size_t m = 0; m < a.num_rows(); ++m)
-    {
-        // p indexes over the cols of b
-        for (size_t p = 0; p < b.num_cols(); ++p)
-        {
-            // n indexes over the cols of a and the rows of b
-            T dot_product_result = 0;
-            for (size_t n = 0; n < b.num_rows(); ++n)
-            {
-                dot_product_result += a.at(m, n) * b.at(n, p);
-            }
-            c_data.push_back(dot_product_result);
-        }
-    }
-
-    return Matrix<T>(c_data, a.num_rows(), b.num_cols());
-}
-
 #endif

@@ -22,7 +22,7 @@ int main()
     auto mat_a = Matrix<int>(a_vectors);
     auto mat_b = Matrix<int>(b_vectors);
 
-    Matrix<int> result = matmul(mat_a, mat_b);
+    Matrix<int> result = mat_a * mat_b;
 
     result.to_string();
 
