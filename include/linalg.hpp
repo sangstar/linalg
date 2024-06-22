@@ -15,17 +15,17 @@ public:
 
     // Additionally add a constructor for a vector of vectors
     // (so that the Python lib can initialize with a list of lists)
-    Matrix(std::vector<std::vector<T>> stackedData)
+    explicit Matrix(std::vector<std::vector<T>> stacked_data)
     {
-        num_rows_ = stackedData.size();
-        num_cols_ = stackedData[0].size();
+        num_rows_ = stacked_data.size();
+        num_cols_ = stacked_data[0].size();
         data_.reserve(num_rows_ * num_cols_);
 
         for (size_t i = 0; i < num_rows_; ++i)
         {
             for (size_t j = 0; j < num_cols_; ++j)
             {
-                data_.push_back(stackedData[i][j]);
+                data_.push_back(stacked_data[i][j]);
             }
         }
     }
@@ -84,7 +84,7 @@ public:
         return ss.str();
     }
 
-    ~Matrix(){};
+    ~Matrix()= default;
 
 private:
     std::vector<T> data_;
