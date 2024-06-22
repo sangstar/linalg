@@ -10,15 +10,39 @@ template <typename T>
 class Matrix
 {
 public:
-    Matrix(std::vector<std::vector<T>> data) : data_(data)
+    Matrix(std::vector<T> data, size_t num_rows, size_t num_cols)
+        : data_(data), num_rows_(num_rows), num_cols_(num_cols){};
+
+    // Additionally add a constructor for a vector of vectors
+    // (so that the Python lib can initialize with a list of lists)
+    Matrix(std::vector<std::vector<T>> stackedData)
     {
-        num_rows_ = data.size();
-        num_cols_ = data[0].size();
+        num_rows_ = stackedData.size();
+        num_cols_ = stackedData[0].size();
+        data_.reserve(num_rows_ * num_cols_);
+
+        for (size_t i = 0; i < num_rows_; ++i)
+        {
+            for (size_t j = 0; j < num_cols_; ++j)
+            {
+                data_.push_back(stackedData[i][j]);
+            }
+        }
     }
 
-    std::vector<std::vector<T>> data()
+    std::vector<T> &data()
     {
         return data_;
+    }
+
+    T &at(size_t row, size_t col)
+    {
+
+        // Need to subtract by 1 since this assumes
+        // indexing starts at 1, but std::vector indexing
+        // starts at 0
+
+        return data_[row * num_cols_ + col];
     }
 
     size_t
@@ -32,47 +56,24 @@ public:
         return num_cols_;
     }
 
-    std::vector<T> get_column_vector(size_t col_index)
-    {
-        std::vector<T> col_vec;
-        for (size_t i = 0; i < num_rows(); ++i)
-        {
-            col_vec.push_back(data_[i][col_index]);
-        }
-        return col_vec;
-    }
-
-    std::vector<T> get_row_vector(size_t row_index)
-    {
-        return data_[row_index];
-    }
-
     std::string to_string()
     {
         std::stringstream ss;
-        size_t skip_len = 4;
-        auto add_whitespace = [skip_len, &ss]() -> void
-        {
-            for (size_t k = 0; k < skip_len; ++k)
-            {
-                ss << " ";
-            }
-        };
 
         ss << "Matrix([" << std::endl;
         for (size_t i = 0; i < num_rows(); ++i)
         {
-            add_whitespace();
+            ss << "    ";
             ss << "[";
             for (size_t j = 0; j < num_cols(); ++j)
             {
                 if (j == num_cols() - 1)
                 {
-                    ss << data_[i][j];
+                    ss << at(i, j);
                 }
                 else
                 {
-                    ss << data_[i][j] << ", ";
+                    ss << at(i, j) << ", ";
                 }
             }
             if (i == num_rows() - 1)
@@ -91,14 +92,14 @@ public:
     ~Matrix(){};
 
 private:
-    std::vector<std::vector<T>> data_;
-    int num_rows_, num_cols_;
+    std::vector<T> data_;
+    size_t num_rows_, num_cols_;
 };
 
 template <typename T>
 float dot_product(std::vector<T> &v, std::vector<T> &u)
 {
-    float result = 0;
+    T result = 0;
     if (v.size() != u.size())
     {
         throw std::runtime_error("Incompatible vector lengths.");
@@ -119,23 +120,25 @@ Matrix<T> matmul(Matrix<T> &a, Matrix<T> &b)
         throw std::runtime_error("Incompatible matrix dimensions.");
     }
 
-    std::vector<std::vector<T>> c_vectors;
+    std::vector<T> c_data;
 
-    for (size_t i = 0; i < a.num_rows(); ++i)
+    // m indexes over the rows of a
+    for (size_t m = 0; m < a.num_rows(); ++m)
     {
-        std::vector<T> c_row_vector;
-        std::vector<T> a_row_vector = a.get_row_vector(i);
-
-        for (size_t j = 0; j < b.num_cols(); ++j)
+        // p indexes over the cols of b
+        for (size_t p = 0; p < b.num_cols(); ++p)
         {
-            std::vector<T> b_column_vector = b.get_column_vector(j);
-            c_row_vector.push_back(dot_product(a_row_vector, b_column_vector));
+            // n indexes over the cols of a and the rows of b
+            T dot_product_result = 0;
+            for (size_t n = 0; n < b.num_rows(); ++n)
+            {
+                dot_product_result += a.at(m, n) * b.at(n, p);
+            }
+            c_data.push_back(dot_product_result);
         }
-
-        c_vectors.push_back(c_row_vector);
     }
 
-    return Matrix<T>(c_vectors);
+    return Matrix<T>(c_data, a.num_rows(), b.num_cols());
 }
 
 #endif
