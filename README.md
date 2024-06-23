@@ -16,7 +16,7 @@ imported directly in to Python.
 
 ## Overview
 The principle object in `linalg` is `Matrix`. It is constructed by passing a
-Python list of uniform length lists, and is saved C-contiguously.
+Python list of uniform length lists, and is stored C-contiguously.
 
 ```python
 import linalg
@@ -27,12 +27,6 @@ a = linalg.Matrix([[1,3,8],[7,11,12],[1,2,3]])
 
 ```python
 import linalg
-
-print(linalg.dot_product([1,2,3], [4,5,6]))
-
-'''
-32.0
-'''
 
 a = linalg.Matrix([[1,3,8],[7,11,12],[1,2,3]])
 b = linalg.Matrix([[5,7,56],[12,8,14],[4,5,6]])
