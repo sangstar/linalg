@@ -116,6 +116,7 @@ public:
         return Matrix<T>(c_data, num_rows_, other.num_cols());
     }
 
+    // TODO: Change up function arguments, as `echelon_form(true, false)` is wonky
     // Get row-echelon form using LU decomposition, performed in-place.
     void echelon_form(bool take_upper, bool take_lower) {
         if (num_cols_ != num_rows_) {
@@ -146,7 +147,7 @@ public:
             }
             // Calculate the lower triangular matrix L
             // This essentially attempts to find the pivot factor
-            // but instead of using it to zero out rows elements
+            // but instead of using it to zero out row elements
             // below the pivot, it stores the pivot factor where it
             // would've zero'd
             for (size_t k = i + 1; k < num_rows_; ++k) {
@@ -199,6 +200,8 @@ public:
         // to its determinant
         Matrix<T> mat = *this;
 
+        // Take upper triangular matrix, which is `mat` in
+        // echelon form
         mat.echelon_form(true, false);
 
         // Determinant of an upper triangular matrix
@@ -209,8 +212,6 @@ public:
         return result;
     }
 
-    // TODO: Ensure whitespace length of all rows
-    //       is as long as the longest row
     std::string to_string() {
         // We want to make sure that the longest column
         // dictates where the braces for the Matrix are
