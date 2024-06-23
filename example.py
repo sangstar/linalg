@@ -15,4 +15,8 @@ c = a@b
 
 print(c)
 
+c.echelon_form()
+
+print(c)
+
 print(c.det())

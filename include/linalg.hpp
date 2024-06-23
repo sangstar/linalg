@@ -219,41 +219,59 @@ public:
         // whichever has the most decides on the braces
         // placements
 
-        size_t decimals = 0;
+        size_t decimals = 1;
 
-        auto get_size = [](T digit) -> size_t {
+        auto get_size = [decimals](T digit) -> size_t {
             size_t size = 0;
             std::string string_digit = std::to_string(digit);
             for (size_t i = 0; i < string_digit.length(); ++i) {
-                if (string_digit.at(i) != *".") {
+                char entry = string_digit.at(i);
+                if (entry != *".") {
                     size++;
-                } else {
+                } else if (string_digit.at(i + 1) != *"0") {
+                    // Count the decimal
+                    size++;
+                    // Count `decimals` more digits
+                    for (size_t j = 0; j < decimals; ++j) {
+                        // (i+1) + j here to denote the first decimal point
+                        // as j starts at 0, and i is at the "."
+                        size++;
+                    }
+                        return size;
+                }
+                else {
                     return size;
                 }
             }
-            return size;
         };
 
-        // Get whitespace-dominating row
-        std::vector<std::vector<size_t>> whitespace_data;
-        size_t largest = 0;
-        size_t largest_row_index = 0;
+        auto get_digits = [get_size](T num, size_t whitespace_allowed) -> T {
+            std::string string_digit = std::to_string(num);
+            std::string new_digit;
+            size_t whitespace_for_digit = get_size(num);
+            for (size_t i = 0; i < whitespace_allowed; ++i) {
+                // Keep popping back until at `decimals` past "."
+                    new_digit += string_digit[i];
+                }
+
+            return std::stod(new_digit);
+        };
+
+
+        // Get a row of the largest digits for each column
+        std::vector<size_t> minimum_whitespace_per_column;
         for (size_t i = 0; i < num_rows_; ++i) {
-            std::vector<size_t> whitespace_row;
-            size_t total_whitespace = 0;
-            for (size_t j = 0; j < num_rows_; ++j) {
-                T elem = at(i,j);
-                total_whitespace += get_size(elem);
-                whitespace_row.push_back(get_size(elem));
+            size_t largest_col_elem = 0;
+            for (size_t j = 0; j < num_cols_; ++j) {
+                T elem = at(j,i);
+                size_t elem_size = get_size(elem);
+                if (elem_size > largest_col_elem) {
+                    largest_col_elem = elem_size;
+                }
             }
-            if (total_whitespace > largest) {
-                largest = total_whitespace;
-                largest_row_index = i;
-            }
-            whitespace_data.push_back(whitespace_row);
+            minimum_whitespace_per_column.push_back(largest_col_elem);
         }
 
-        std::vector<size_t>& minimum_whitespace_per_column = whitespace_data[largest_row_index];
 
         std::stringstream ss;
         ss << "Matrix([" << std::endl;
@@ -265,15 +283,17 @@ public:
             for (size_t j = 0; j < num_cols_; ++j) {
                 T elem = at(i, j);
                 size_t whitespace = get_size(elem);
-                size_t whitespace_debt = minimum_whitespace_per_column[j] - whitespace;
+                size_t minimum_whitespace_for_entry = minimum_whitespace_per_column[j];
+                size_t whitespace_debt =  minimum_whitespace_for_entry - whitespace;
 
                 for (size_t k = 0; k < whitespace_debt; ++k) {
                     ss << " ";
                 }
+                T elem_adjusted_for_sigfigs = get_digits(elem, whitespace);
                 if (j == num_cols() - 1) {
-                    ss << at(i, j);
+                    ss << elem_adjusted_for_sigfigs;
                 } else {
-                    ss << at(i, j) << ", ";
+                    ss << elem_adjusted_for_sigfigs << ", ";
                 }
             }
             if (i == num_rows() - 1) {
