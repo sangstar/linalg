@@ -248,9 +248,9 @@ public:
         auto get_digits = [get_size](T num, size_t whitespace_allowed) -> T {
             std::string string_digit = std::to_string(num);
             std::string new_digit;
-            size_t whitespace_for_digit = get_size(num);
+
+            // Keep popping back until at `decimals` past "."
             for (size_t i = 0; i < whitespace_allowed; ++i) {
-                // Keep popping back until at `decimals` past "."
                     new_digit += string_digit[i];
                 }
 
