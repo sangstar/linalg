@@ -6,7 +6,7 @@ b = linalg.Matrix([[5,7,56],[12,8,14],[4,5,6]])
 # matrix a
 print(a)
 
-# row 1, column 2 of matrix a
+# row 1, column 2 of matrix a (indexing starts 0)
 print(a[1,2])
 
 # a + b
