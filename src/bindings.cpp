@@ -18,6 +18,7 @@ NB_MODULE(linalg, m)
         .def("data", &Matrix<float>::data)
         .def("__str__", &Matrix<float>::to_string)
         .def("__add__", &Matrix<float>::operator+, "other"_a)
+        .def("__sub__", &Matrix<float>::operator-, "other"_a)
         .def("__matmul__", &Matrix<float>::operator*, "other"_a)
         .def("__getitem__", &Matrix<float>::operator[], "tuple"_a)
         .def("echelon_form", &Matrix<float>::echelon_form, "take_upper"_a = true, "take_lower"_a = false,

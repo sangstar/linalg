@@ -11,6 +11,9 @@ print(a[1,2])
 
 print(a + b)
 
+print("sub")
+print(a - b)
+
 c = a@b
 
 print(c)

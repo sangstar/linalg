@@ -75,6 +75,19 @@ public:
         return Matrix<T>(c_data, num_rows_, num_cols_);
     }
 
+    Matrix<T> operator-(Matrix& other) {
+        std::vector<T> c_data;
+        if (num_cols_ != other.num_cols() || num_rows_ != other.num_rows()) {
+            throw std::runtime_error("Matrices must have same dimension");
+        }
+        for (size_t i = 0; i < num_rows_; ++i) {
+            for (size_t j = 0; j < num_cols_; ++j) {
+                c_data.push_back(at(i,j) - other.at(i,j));
+            }
+        }
+        return Matrix<T>(c_data, num_rows_, num_cols_);
+    }
+
     Matrix<T> operator*(Matrix& other)
     {
         if (num_cols_ != other.num_rows())
@@ -198,8 +211,7 @@ public:
 
     // TODO: Ensure whitespace length of all rows
     //       is as long as the longest row
-    std::string to_string()
-    {
+    std::string to_string() {
         // We want to make sure that the longest column
         // dictates where the braces for the Matrix are
 
@@ -213,7 +225,6 @@ public:
             size_t size = 0;
             std::string string_digit = std::to_string(digit);
             for (size_t i = 0; i < string_digit.length(); ++i) {
-                auto current = string_digit.at(i);
                 if (string_digit.at(i) != *".") {
                     size++;
                 } else {
@@ -223,78 +234,56 @@ public:
             return size;
         };
 
+        // Get whitespace-dominating row
+        std::vector<std::vector<size_t>> whitespace_data;
+        size_t largest = 0;
+        size_t largest_row_index = 0;
+        for (size_t i = 0; i < num_rows_; ++i) {
+            std::vector<size_t> whitespace_row;
+            size_t total_whitespace = 0;
+            for (size_t j = 0; j < num_rows_; ++j) {
+                T elem = at(i,j);
+                total_whitespace += get_size(elem);
+                whitespace_row.push_back(get_size(elem));
+            }
+            if (total_whitespace > largest) {
+                largest = total_whitespace;
+                largest_row_index = i;
+            }
+            whitespace_data.push_back(whitespace_row);
+        }
+
+        std::vector<size_t>& minimum_whitespace_per_column = whitespace_data[largest_row_index];
+
         std::stringstream ss;
         ss << "Matrix([" << std::endl;
 
-        std::vector<size_t> whitespaces_until_comma;
-        for (size_t i = 0; i < num_rows_; ++i)
-        {
+        for (size_t i = 0; i < num_rows_; ++i) {
             ss << "    ";
             ss << "[";
 
-            // 5 characters used so far
-            size_t whitespace_until_comma = 5;
-            for (size_t j = 0; j < num_cols_; ++j)
-            {
-                T elem = at(i,j);
-                size_t whitespaces = get_size(at(i,j));
-                if (j == num_cols() - 1)
-                {
-                    whitespace_until_comma += whitespaces;
-                    ss << at(i, j);
+            for (size_t j = 0; j < num_cols_; ++j) {
+                T elem = at(i, j);
+                size_t whitespace = get_size(elem);
+                size_t whitespace_debt = minimum_whitespace_per_column[j] - whitespace;
+
+                for (size_t k = 0; k < whitespace_debt; ++k) {
+                    ss << " ";
                 }
-                else
-                {
-                    whitespace_until_comma += whitespaces;
-                    whitespaces_until_comma.push_back(whitespace_until_comma);
+                if (j == num_cols() - 1) {
+                    ss << at(i, j);
+                } else {
                     ss << at(i, j) << ", ";
                 }
             }
-            if (i == num_rows() - 1)
-            {
+            if (i == num_rows() - 1) {
                 ss << "]" << std::endl;
                 ss << "])";
-            }
-            else
-            {
+            } else {
                 ss << "]," << std::endl;
             }
         }
-
-        std::stringstream new_ss;
-        new_ss << "Matrix([" << std::endl;
-
-        for (size_t i = 0; i < num_rows_; ++i)
-        {
-            new_ss << "    ";
-            new_ss << "[";
-            for (size_t j = 0; j < num_cols_; ++j)
-            {
-                size_t whitespace_needed = whitespaces_until_comma[j];
-                size_t fill_before_writing = whitespace_needed - get_size(at(i,j));
-                for (size_t k = 0; k < fill_before_writing; ++k) {
-                    new_ss << " ";
-                }
-                if (j == num_cols() - 1)
-                {
-                    new_ss << at(i, j);
-                }
-                else
-                {
-                    new_ss << at(i, j) << ", ";
-                }
-            }
-            if (i == num_rows() - 1)
-            {
-                new_ss << "]," << std::endl;
-                new_ss << "])";
-            }
-            else
-            {
-                new_ss << "]," << std::endl;
-            }
-        }
-        return new_ss.str();
+        return ss.str();
     }
 
     ~Matrix()= default;
