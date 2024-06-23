@@ -16,7 +16,7 @@ imported directly in to Python.
 
 ## Overview
 The principle object in `linalg` is `Matrix`. It is constructed by passing a
-Python list of lists, and is saved C-contiguously.
+Python list of uniform length lists, and is saved C-contiguously.
 
 ```python
 import linalg
