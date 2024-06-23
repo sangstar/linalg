@@ -41,7 +41,7 @@ Matrix([
 ])
 '''
 
-# row 1, column 2 of matrix a (indexing starts 0)
+# row 1, column 2 of matrix a (indexing starts at 0)
 print(a[1,2])
 '''
 12.0
