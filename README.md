@@ -92,7 +92,8 @@ print(c.det())
 
 ```
 
-`Matrix` taking a list of lists as a constructor allows it to be easily
+## Example
+`Matrix` taking a list of lists for its constructor allows it to be easily
 interoperable with `numpy`.
 
 ```python
