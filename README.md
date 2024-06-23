@@ -68,7 +68,7 @@ Matrix([
 '''
 
 # matrix a multiplied by matrix b
-c = a@b
+c = a @ b
 
 print(c)
 '''
