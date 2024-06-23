@@ -207,20 +207,32 @@ public:
         // whichever has the most decides on the braces
         // placements
 
+        auto get_size = [](T digit) -> size_t {
+            return std::to_string(digit).length();
+        };
+
         std::stringstream ss;
         ss << "Matrix([" << std::endl;
+
+        std::vector<size_t> whitespaces_until_comma;
         for (size_t i = 0; i < num_rows_; ++i)
         {
             ss << "    ";
             ss << "[";
+
+            // 5 characters used so far
+            size_t whitespace_until_comma = 5;
             for (size_t j = 0; j < num_cols_; ++j)
             {
                 if (j == num_cols() - 1)
                 {
+                    whitespace_until_comma += get_size(at(i,j));
                     ss << at(i, j);
                 }
                 else
                 {
+                    whitespace_until_comma += get_size(at(i,j));
+                    whitespaces_until_comma.push_back(whitespace_until_comma);
                     ss << at(i, j) << ", ";
                 }
             }
@@ -234,7 +246,41 @@ public:
                 ss << "]," << std::endl;
             }
         }
-        return ss.str();
+
+        std::stringstream new_ss;
+        new_ss << "Matrix([" << std::endl;
+
+        for (size_t i = 0; i < num_rows_; ++i)
+        {
+            new_ss << "    ";
+            new_ss << "[";
+            for (size_t j = 0; j < num_cols_; ++j)
+            {
+                size_t whitespace_needed = whitespaces_until_comma[j];
+                size_t fill_before_writing = whitespace_needed - get_size(at(i,j));
+                for (size_t k = 0; k < fill_before_writing; ++k) {
+                    new_ss << " ";
+                }
+                if (j == num_cols() - 1)
+                {
+                    new_ss << at(i, j);
+                }
+                else
+                {
+                    new_ss << at(i, j) << ", ";
+                }
+            }
+            if (i == num_rows() - 1)
+            {
+                new_ss << "]" << std::endl;
+                new_ss << "])";
+            }
+            else
+            {
+                new_ss << "]," << std::endl;
+            }
+        }
+        return new_ss.str();
     }
 
     ~Matrix()= default;
