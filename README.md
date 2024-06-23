@@ -91,3 +91,55 @@ print(c.det())
 '''
 
 ```
+
+`Matrix` taking a list of lists as a constructor allows it to be easily
+interoperable with `numpy`.
+
+```python
+import numpy as np
+import time
+a = np.random.rand(10,10)
+b = np.random.rand(10,10)
+
+# Also supports casting from `np.array`s with `.tolist()`
+
+a = linalg.Matrix(a.tolist())
+b = linalg.Matrix(b.tolist())
+
+start = time.time()
+c = a @ b
+
+
+d = (c @ a) @ b
+print(d)
+'''
+Matrix([
+    [ 76.8, 64.2,   57, 59.7, 59.6,  64.4, 46.3,  69.4,  64.4,  65.3],
+    [123.8,  103,   92, 96.4, 96.2, 103.1, 74.6, 112.1, 103.1, 104.3],
+    [ 90.5, 75.8, 67.3, 70.7, 70.2,  75.8, 54.2,  81.8,  75.5,  76.8],
+    [ 92.8, 77.1, 68.8,   72,   72,  77.4, 55.9,  83.9,  77.8,  78.3],
+    [105.5,   88, 78.2,   82, 81.8,  88.1, 63.6,  95.4,  88.2,  89.4],
+    [110.1, 92.4, 81.8, 85.8, 85.3,  92.4, 66.5,  99.7,  91.7,  93.9],
+    [ 84.3, 70.2, 62.2, 65.6, 65.3,    70, 51.2,  76.3,  69.6,  71.1],
+    [ 92.3, 76.7, 68.2, 71.6, 71.7,  77.1, 56.1,  83.5,  76.8,  78.2],
+    [ 94.6, 79.1, 70.2, 73.5, 73.3,  79.2, 56.9,  85.5,  79.2,  80.4],
+    [ 83.1, 69.4, 61.8, 64.6, 64.4,  69.5, 49.8,  75.1,  69.7,  70.5]
+])
+'''
+
+
+print(d.det())
+'''
+9.80322162862115e-07 
+
+Matrix has no inverse
+'''
+
+elapsed_time = time.time() - start
+
+
+print("Elapsed time: %.6f seconds" % elapsed_time)
+'''
+Elapsed time: 0.000159 seconds
+'''
+```
