@@ -207,8 +207,20 @@ public:
         // whichever has the most decides on the braces
         // placements
 
+        size_t decimals = 0;
+
         auto get_size = [](T digit) -> size_t {
-            return std::to_string(digit).length();
+            size_t size = 0;
+            std::string string_digit = std::to_string(digit);
+            for (size_t i = 0; i < string_digit.length(); ++i) {
+                auto current = string_digit.at(i);
+                if (string_digit.at(i) != *".") {
+                    size++;
+                } else {
+                    return size;
+                }
+            }
+            return size;
         };
 
         std::stringstream ss;
@@ -224,14 +236,16 @@ public:
             size_t whitespace_until_comma = 5;
             for (size_t j = 0; j < num_cols_; ++j)
             {
+                T elem = at(i,j);
+                size_t whitespaces = get_size(at(i,j));
                 if (j == num_cols() - 1)
                 {
-                    whitespace_until_comma += get_size(at(i,j));
+                    whitespace_until_comma += whitespaces;
                     ss << at(i, j);
                 }
                 else
                 {
-                    whitespace_until_comma += get_size(at(i,j));
+                    whitespace_until_comma += whitespaces;
                     whitespaces_until_comma.push_back(whitespace_until_comma);
                     ss << at(i, j) << ", ";
                 }
@@ -272,7 +286,7 @@ public:
             }
             if (i == num_rows() - 1)
             {
-                new_ss << "]" << std::endl;
+                new_ss << "]," << std::endl;
                 new_ss << "])";
             }
             else
