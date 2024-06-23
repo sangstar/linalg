@@ -148,7 +148,7 @@ public:
         }
 
         // This result combines the L and U matrices respectively in their upper and lower
-        // triangular quadrants.
+        // triangular quadrants
 
         // Zero out the elements below the diagonal to retrieve U, which is the original
         // Matrix in echelon form
@@ -161,6 +161,9 @@ public:
                 }
             }
         }
+
+        // To extract L from the combined Matrix, set diagonal
+        // entries to 1 and upper diagonal entries to 0
         if (take_lower) {
             for (size_t i = 0; i < num_rows_; ++i) {
                 for (size_t j = 0; j < num_rows_; ++j) {
@@ -197,8 +200,14 @@ public:
     //       is as long as the longest row
     std::string to_string()
     {
-        std::stringstream ss;
+        // We want to make sure that the longest column
+        // dictates where the braces for the Matrix are
 
+        // Count how many symbols take up each row and
+        // whichever has the most decides on the braces
+        // placements
+
+        std::stringstream ss;
         ss << "Matrix([" << std::endl;
         for (size_t i = 0; i < num_rows_; ++i)
         {
