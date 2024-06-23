@@ -140,6 +140,6 @@ elapsed_time = time.time() - start
 
 print("Elapsed time: %.6f seconds" % elapsed_time)
 '''
-Elapsed time: 0.000159 seconds
+Elapsed time: 0.000061 seconds
 '''
 ```
