@@ -97,8 +97,10 @@ print(c.det())
 interoperable with `numpy`.
 
 ```python
-import numpy as np
 import time
+import linalg
+import numpy as np
+
 a = np.random.rand(10,10)
 b = np.random.rand(10,10)
 
