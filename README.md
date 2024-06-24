@@ -110,6 +110,7 @@ start = time.time()
 c = a @ b
 
 d = (c @ a) @ b
+
 print(d)
 '''
 Matrix([
