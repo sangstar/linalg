@@ -102,14 +102,12 @@ import time
 a = np.random.rand(10,10)
 b = np.random.rand(10,10)
 
-# Also supports casting from `np.array`s with `.tolist()`
-
 a = linalg.Matrix(a.tolist())
 b = linalg.Matrix(b.tolist())
 
 start = time.time()
-c = a @ b
 
+c = a @ b
 
 d = (c @ a) @ b
 print(d)
@@ -127,7 +125,6 @@ Matrix([
     [ 83.1, 69.4, 61.8, 64.6, 64.4,  69.5, 49.8,  75.1,  69.7,  70.5]
 ])
 '''
-
 
 print(d.det())
 '''
