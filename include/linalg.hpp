@@ -13,6 +13,13 @@ public:
     Matrix(std::vector<T> data, size_t num_rows, size_t num_cols)
         : data_(data), num_rows_(num_rows), num_cols_(num_cols){};
 
+    Matrix(size_t num_rows, size_t num_cols) : num_rows_(num_rows), num_cols_(num_cols) {
+        data_.reserve(num_rows_ * num_cols_);
+        for (size_t i = 0; i < num_rows * num_cols; ++i) {
+            data_.push_back(T(0));
+        }
+    }
+
     // Additionally add a constructor for a vector of vectors
     // (so that the Python lib can initialize with a list of lists)
 
