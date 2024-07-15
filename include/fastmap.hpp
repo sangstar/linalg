@@ -14,8 +14,8 @@
 namespace views = std::views;
 
 
-template <typename T>
-std::vector<T> add_vectors(const std::vector<T>& a, const std::vector<T>& b) {
+template<typename T>
+std::vector<T> add_vectors(const std::vector<T> &a, const std::vector<T> &b) {
     if (a.size() != b.size()) {
         throw std::runtime_error("Incompatible sizes for addition");
     }
@@ -28,8 +28,8 @@ std::vector<T> add_vectors(const std::vector<T>& a, const std::vector<T>& b) {
     return c;
 }
 
-template <typename T>
-std::vector<T> scale_vectors(const std::vector<T>& a, T by) {
+template<typename T>
+std::vector<T> scale_vectors(const std::vector<T> &a, T by) {
     std::vector<T> c;
     for (size_t i = 0; i < a.size(); ++i) {
         c.push_back(a.at(i) * by);
@@ -38,15 +38,15 @@ std::vector<T> scale_vectors(const std::vector<T>& a, T by) {
     return c;
 }
 
-template <typename T>
-std::vector<T> subtract_vectors(const std::vector<T>& a, const std::vector<T>& b) {
+template<typename T>
+std::vector<T> subtract_vectors(const std::vector<T> &a, const std::vector<T> &b) {
     std::vector<T> minus_b = scale_vectors(b, T(-1));
     std::vector<T> c = add_vectors(a, minus_b);
     return c;
 }
 
-template <typename T>
-T euclidean_distance(const std::vector<T>& a, const std::vector<T>& b){
+template<typename T>
+T euclidean_distance(const std::vector<T> &a, const std::vector<T> &b) {
     T distance = 0;
     std::vector<T> subtracted_vector = subtract_vectors(a, b);
 
@@ -58,8 +58,8 @@ T euclidean_distance(const std::vector<T>& a, const std::vector<T>& b){
 
 }
 
-template <typename T>
-int argmax(std::vector<T>& a){
+template<typename T>
+int argmax(std::vector<T> &a) {
     T max = 0;
     int max_idx = 0;
     for (int i = 0; i < a.size(); ++i) {
@@ -72,8 +72,8 @@ int argmax(std::vector<T>& a){
 }
 
 
-template <typename T>
-int get_pivot_point(Matrix<T>& data, int pivot_point, int num_points) {
+template<typename T>
+int get_pivot_point(Matrix<T> &data, int pivot_point, int num_points) {
     std::vector<T> distances;
     for (int i: views::iota(0, num_points)) {
         distances.push_back(euclidean_distance(data.get_row(pivot_point), data.get_row(i)));
@@ -82,13 +82,12 @@ int get_pivot_point(Matrix<T>& data, int pivot_point, int num_points) {
 }
 
 
-
-template <typename T>
-Matrix<T> reduce_with_fastmap(Matrix<T>& X, int target_dim) {
+template<typename T>
+Matrix<T> reduce_with_fastmap(Matrix<T> &X, int target_dim) {
     int n = X.num_rows();
     auto reduced = Matrix<T>(n, target_dim);
 
-    for (int j : views::iota(0, target_dim)) {
+    for (int j: views::iota(0, target_dim)) {
         int O_a = 0;
         int O_b = get_pivot_point(X, O_a, n);
         O_a = get_pivot_point(X, O_b, n);
@@ -101,25 +100,28 @@ Matrix<T> reduce_with_fastmap(Matrix<T>& X, int target_dim) {
 
         for (int i = 0; i < n; ++i) {
 
-            reduced.at(i,j) = (
-            ( euclidean_distance(X.get_row(i), X.get_row(O_a)) * euclidean_distance(X.get_row(i), X.get_row(O_a)) )
-            + (D_pivots * D_pivots)
-            - ( euclidean_distance(X.get_row(i), X.get_row(O_b)) * euclidean_distance(X.get_row(i), X.get_row(O_b)) )
-            )
-            / (2 * D_pivots);
+            reduced.at(i, j) = (
+                                       (euclidean_distance(X.get_row(i), X.get_row(O_a)) *
+                                        euclidean_distance(X.get_row(i), X.get_row(O_a)))
+                                       + (D_pivots * D_pivots)
+                                       - (euclidean_distance(X.get_row(i), X.get_row(O_b)) *
+                                          euclidean_distance(X.get_row(i), X.get_row(O_b)))
+                               )
+                               / (2 * D_pivots);
         }
 
         for (int i = 0; i < n; ++i) {
             for (int l = i + 1; l < n; ++l) {
-                X.at(i,l) = std::sqrt(
+                X.at(i, l) = std::sqrt(
                         std::abs(
                                 std::pow(euclidean_distance(X.get_row(i), X.get_row(l)), 2)
-                                - std::pow((reduced.at(i,j) - reduced.at(l,j)), 2)
-                                )
-                                );
+                                - std::pow((reduced.at(i, j) - reduced.at(l, j)), 2)
+                        )
+                );
             }
         }
     }
     return reduced;
 }
+
 #endif //LINALG_FASTMAP_HPP
