@@ -70,12 +70,9 @@ public:
     }
 
     std::vector<T> get_row(int row) {
-        auto row_vec = std::vector<T>();
-        for (int i = 0; i < num_cols_; ++i) {
-            row_vec.push_back(at(row, i));
-        }
-        return row_vec;
+        return std::vector<T>(data_.begin() + row * num_cols_, data_.begin() + row * num_cols_ + num_cols_);
     }
+
     Matrix<T> operator+(Matrix& other) {
         std::vector<T> c_data;
         if (num_cols_ != other.num_cols() || num_rows_ != other.num_rows()) {
