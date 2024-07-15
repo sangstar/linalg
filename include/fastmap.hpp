@@ -102,9 +102,10 @@ Matrix<T> reduce_with_fastmap(Matrix<T>& X, int target_dim) {
         for (int i = 0; i < n; ++i) {
 
             reduced.at(i,j) = (
-            (euclidean_distance(X.get_row(i), X.get_row(O_a) * euclidean_distance(X.get_row(i), X.get_row(O_a))) )
+            ( euclidean_distance(X.get_row(i), X.get_row(O_a)) * euclidean_distance(X.get_row(i), X.get_row(O_a)) )
             + (D_pivots * D_pivots)
-            - (euclidean_distance(X.get_row(i), X.get_row(O_b)) * euclidean_distance(X.get_row(i), X.get_row(O_b))) )
+            - ( euclidean_distance(X.get_row(i), X.get_row(O_b)) * euclidean_distance(X.get_row(i), X.get_row(O_b)) )
+            )
             / (2 * D_pivots);
         }
 

@@ -2,7 +2,9 @@
 #include <nanobind/stl/vector.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/tuple.h>
+#include "fastmap.hpp"
 #include "linalg.hpp"
+
 
 namespace nb = nanobind;
 using namespace nb::literals;
@@ -30,6 +32,6 @@ NB_MODULE(linalg, m)
          "simply imputed together just to hold both in one matrix for memory efficiency.")
         .def("det", &Matrix<double>::det, "Gets the determinant of Matrix");
 
-
+    m.def("reduce_with_fastmap", &reduce_with_fastmap<double>, "X"_a, "target_dim"_a);
     m.def("dot_product", &dot_product<double>, "v"_a, "u"_a);
 }

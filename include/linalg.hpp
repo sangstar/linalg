@@ -326,7 +326,7 @@ private:
 };
 
 template <typename T>
-float dot_product(std::vector<T> &v, std::vector<T> &u)
+double dot_product(std::vector<T> &v, std::vector<T> &u)
 {
     T result = 0;
     if (v.size() != u.size())

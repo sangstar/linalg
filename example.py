@@ -40,7 +40,6 @@ c = a @ b
 
 
 d = (c @ a) @ b
-print(d)
 
 print(d.det())
 
@@ -48,3 +47,6 @@ elapsed_time = time.time() - start
 
 
 print("Elapsed time: %.6f seconds" % elapsed_time)
+
+reduced = linalg.reduce_with_fastmap(d, 2)
+print(reduced)
