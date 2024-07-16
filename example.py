@@ -48,5 +48,8 @@ elapsed_time = time.time() - start
 
 print("Elapsed time: %.6f seconds" % elapsed_time)
 
-reduced = linalg.reduce_with_fastmap(d, 2)
-print(reduced)
+a = np.random.rand(50304,512)
+mat = linalg.Matrix(a.tolist())
+
+reduced = linalg.reduce_with_fastmap(mat, 2)
+print("Reduced: ",reduced)

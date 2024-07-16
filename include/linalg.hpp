@@ -49,7 +49,7 @@ public:
         return data_;
     }
 
-    T &at(size_t row, size_t col)
+    inline T &at(size_t row, size_t col)
     {
         return data_[row * num_cols_ + col];
     }
@@ -69,7 +69,7 @@ public:
         return num_cols_;
     }
 
-    std::vector<T> get_row(int row) {
+    inline std::vector<T> get_row(int row) {
         return std::vector<T>(data_.begin() + row * num_cols_, data_.begin() + row * num_cols_ + num_cols_);
     }
 

@@ -1,7 +1,3 @@
-//
-// Created by Sanger Steel on 7/13/24.
-//
-
 #ifndef LINALG_FASTMAP_HPP
 #define LINALG_FASTMAP_HPP
 
@@ -9,119 +5,136 @@
 #include <iostream>
 #include <vector>
 #include <ranges>
+#include <omp.h>
 #include "linalg.hpp"
 
 namespace views = std::views;
 
-
 template<typename T>
-std::vector<T> add_vectors(const std::vector<T> &a, const std::vector<T> &b) {
-    if (a.size() != b.size()) {
-        throw std::runtime_error("Incompatible sizes for addition");
-    }
-
-    std::vector<T> c;
-    for (size_t i = 0; i < a.size(); ++i) {
-        c.push_back(a.at(i) + b.at(i));
-    }
-
-    return c;
-}
-
-template<typename T>
-std::vector<T> scale_vectors(const std::vector<T> &a, T by) {
-    std::vector<T> c;
-    for (size_t i = 0; i < a.size(); ++i) {
-        c.push_back(a.at(i) * by);
-    }
-
-    return c;
-}
-
-template<typename T>
-std::vector<T> subtract_vectors(const std::vector<T> &a, const std::vector<T> &b) {
-    std::vector<T> minus_b = scale_vectors(b, T(-1));
-    std::vector<T> c = add_vectors(a, minus_b);
-    return c;
-}
-
-template<typename T>
-T euclidean_distance(const std::vector<T> &a, const std::vector<T> &b) {
+inline T euclidean_distance(const std::vector<T> &a, const std::vector<T> &b) {
     T distance = 0;
-    std::vector<T> subtracted_vector = subtract_vectors(a, b);
-
-    for (size_t i = 0; i < subtracted_vector.size(); ++i) {
-        distance += pow(subtracted_vector.at(i), 2);
+    for (size_t i = 0; i < a.size(); ++i) {
+        distance += pow(a[i] - b[i], 2);
     }
-
     return sqrt(distance);
-
 }
 
 template<typename T>
-int argmax(std::vector<T> &a) {
-    T max = 0;
+int argmax(const std::vector<T> &a) {
+    T max = a[0];
     int max_idx = 0;
-    for (int i = 0; i < a.size(); ++i) {
-        if (a.at(i) >= max) {
-            max = a.at(i);
+    for (size_t i = 1; i < a.size(); ++i) {
+        if (a[i] > max) {
+            max = a[i];
             max_idx = i;
         }
     }
     return max_idx;
 }
 
-
 template<typename T>
-int get_pivot_point(Matrix<T> &data, int pivot_point, int num_points) {
-    std::vector<T> distances;
-    for (int i: views::iota(0, num_points)) {
-        distances.push_back(euclidean_distance(data.get_row(pivot_point), data.get_row(i)));
+int get_pivot_point(const Matrix<T> &data, int pivot_point, int num_points, Matrix<T>& distances) {
+    std::vector<T> pivot_distances(num_points);
+    #pragma omp parallel for
+    for (int i = 0; i < num_points; ++i) {
+        pivot_distances[i] = distances.at(pivot_point, i);
     }
-    return argmax(distances);
+    return argmax(pivot_distances);
 }
 
+/*
+ The process for FastMap is as follows:
+ We want to project row vectors making up the space into a lower
+ dimension, which means we need to squash its projections in all but k
+ dimensions. We do this as follows:
+
+ 1. Find the longest line any two points can make in our data cloud.
+ 2. Find the euclidean distance between every other point with that line
+ cutting through the cloud
+ 3. You'd now have a line through your data cloud, and all of your points
+ have their own lines attaching perpendicular to that longest line, like straight hairs
+ protruding from one long line. Those points exist in the reduced matrix, but they
+ can only differ by a certain number of allowed dimensions. Take a look at this image:
+ https://www.semanticscholar.org/paper/The-FastMap-Algorithm-for-Shortest-Path-Cohen-Uras/4b0d0fb7a8c5f91c051b10e506bd51d690735579/figure/0
+
+ Notice that the plane below on the right, the reduced space only has room for 2 dimensions, which
+ means that Oi and Oj can't differ by a third dimension anymore, and that distance is squashed.
+ That top blue line represents the real distance between Oi and Oj, but in the reduced space that
+ dimension doesn't exist. The bottom line happens to be the real distance with that third dimension
+ squashed, as you can see when the points live on the 2D plane below. You can find that distance with
+ trigonometry.
+
+ The goal of the reduction is to essentially start with the hairy rod analogy from before, and align
+ all the hairs at the same height along the rod -- reduce the dimensions by subtractings its component
+ in unallowed directions so that its expression there is 0.
+
+ A distance matrix is useful here to do all the calculations up front and reference it later
+
+
+ So essentially:
+
+ 1. Take
+ */
+
+template<typename T>
+Matrix<T> get_distance_matrix(Matrix<T> &X, int n) {
+    // Initialize the distances vector with the correct size
+    std::vector<std::vector<T>> distances(n, std::vector<T>(n));
+
+    // Use symmetry to reduce the number of computations
+    #pragma omp parallel for
+    for (int i = 0; i < n; ++i) {
+        for (int j = i; j < n; ++j) {
+            if (i == j) {
+                distances[i][j] = 0;
+            } else {
+                T dist = euclidean_distance(X.get_row(i), X.get_row(j));
+                distances[i][j] = dist;
+                distances[j][i] = dist;  // Symmetric assignment
+            }
+        }
+    }
+
+    return Matrix(distances);
+}
 
 template<typename T>
 Matrix<T> reduce_with_fastmap(Matrix<T> &X, int target_dim) {
     int n = X.num_rows();
     auto reduced = Matrix<T>(n, target_dim);
 
+    // Figure out a more efficient way to do this. This is prohibitively large
+    // Try using a non-C-contiguous matrix in this case. A vector of vectors
+    Matrix<T> distances = get_distance_matrix(X, n);
+
     for (int j: views::iota(0, target_dim)) {
         int O_a = 0;
-        int O_b = get_pivot_point(X, O_a, n);
-        O_a = get_pivot_point(X, O_b, n);
+        int O_b = get_pivot_point(X, O_a, n, distances);
+        O_a = get_pivot_point(X, O_b, n, distances);
 
-        // Get distance between pivot points pair
-        T D_pivots = euclidean_distance(X.get_row(O_a), X.get_row(O_b));
+        T D_pivots = distances.at(O_a,O_b);
         if (D_pivots == 0) {
             break;
         }
 
+        #pragma omp parallel for
         for (int i = 0; i < n; ++i) {
-
-            reduced.at(i, j) = (
-                                       (euclidean_distance(X.get_row(i), X.get_row(O_a)) *
-                                        euclidean_distance(X.get_row(i), X.get_row(O_a)))
-                                       + (D_pivots * D_pivots)
-                                       - (euclidean_distance(X.get_row(i), X.get_row(O_b)) *
-                                          euclidean_distance(X.get_row(i), X.get_row(O_b)))
-                               )
-                               / (2 * D_pivots);
+            T d_ai = distances.at(O_a, i);
+            T d_bi = distances.at(O_b, i);
+            reduced.at(i, j) = (d_ai * d_ai + D_pivots * D_pivots - d_bi * d_bi) / (2 * D_pivots);
         }
 
+        #pragma omp parallel for
         for (int i = 0; i < n; ++i) {
             for (int l = i + 1; l < n; ++l) {
-                X.at(i, l) = std::sqrt(
-                        std::abs(
-                                std::pow(euclidean_distance(X.get_row(i), X.get_row(l)), 2)
-                                - std::pow((reduced.at(i, j) - reduced.at(l, j)), 2)
-                        )
-                );
+                T d_ij = distances.at(i, l);
+                T d_proj = std::abs(d_ij * d_ij - pow(reduced.at(i, j) - reduced.at(l, j), 2));
+                distances.at(i, l) = std::sqrt(d_proj);
+                distances.at(l, i) = distances.at(i,l);  // Symmetric update
             }
         }
     }
     return reduced;
 }
 
-#endif //LINALG_FASTMAP_HPP
+#endif // LINALG_FASTMAP_HPP
